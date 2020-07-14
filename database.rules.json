@@ -1,0 +1,7 @@
+//Firebase, Permisión total, por defecto:
+{
+    "rules": {
+        ".read": true,
+        ".write": true
+    }
+}

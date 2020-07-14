@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MisNotasCloud</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Firebase -->
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+    <!-- css-->
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+
+<body class="container">
+    <div id="app">
+        <div class="row">
+            <nav class="navbar  bg-warning fixed-top px-4 d-flex">
+                <h2 class="navbar-brand text-white bg-warning  mr-auto">MisNotasCloud</h2>
+                <input id="nav-nueva-nota" class="btn btn-warning text-white  d-none" onclick="nueva_nota()"
+                    data-toggle="modal" data-target="#modal-nueva-nota" type="submit" value="Nueva Nota" />
+                <input id="nav-language" class="btn btn-warning text-white" type="submit" value="English" />
+                <input id="nav-salir" class="btn btn-warning text-white d-none" type="submit" data-toggle="modal"
+                    data-target="#salirModal" value="Salir" />
+            </nav>
+        </div>
+
+        <!-- Login -->
+        <div id="login" class=" d-block">
+            <div class="form-group ">
+                <label id="label-login" class="text-warning" for="input-email">MisNotasCloud</label>
+                <input id="input-email" class="form-control" type="email" aria-describedby="emailHelp"
+                    placeholder="Introduce tu Email">
+                <small id="email-help" class="form-text text-muted">Nunca compartiremos tu email con nadie</small>
+            </div>
+            <input id="login-submit" class="btn btn-warning " type="submit" onclick="envia_email()"   value="Enviar" />
+        </div>
+
+        <!-- Alert -->
+        <div id="alert" class="alert alert-primary d-none" role="alert">
+            A simple primary alert—check it out!
+        </div>
+
+        <!-- Lista -->
+        <div id="lista" class="d-none ">
+            <!-- Nav -->
+            <div data-spy="scroll" class="scrollspy-example mt-5 ">
+                <!-- Lista -->
+                <div id="list-group" class="list-group ">
+
+                </div>
+
+            </div>
+
+        </div>
+        <!--  Modal Editar Nota -->
+        <div class="modal fade" id="modal-edita-nota" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 id="h5-editar-nota" class="modal-title text-white">Editar Nota</h5>
+                        <button id="modal-edita-nota-close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body table-warning">
+                        <label id="label-modal-titulo" for="modal-titulo">Titulo</label>
+                        <input id="modal-edita-titulo" type="text" class="form-control" aria-label="Username"
+                            aria-describedby="basic-addon1">
+                        <label id="label-modal-contenido" for="modal-contenido">Contenido</label>
+                        <textarea id="modal-edita-contenido" type="text" class="form-control" aria-label="Username"
+                            aria-describedby="basic-addon1"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-eliminar-nota" type="button "  class="btn " data-toggle="modal" data-dismiss="modal" data-target="#modal-remove">Eliminar</button>
+                        <button id="btn-guardar-nota" onclick="guardar_edicion()" type="button "
+                            class="btn " data-dismiss="modal" >Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!--  Modal Nueva Nota -->
+         <div class="modal fade" id="modal-nueva-nota" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+         <div class="modal-dialog modal-dialog" role="document">
+             <div class="modal-content">
+                 <div class="modal-header  bg-warning">
+                     <h5 id="h5-nueva-nota" class="modal-title text-white d-none">Nueva Nota</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+                 <div class="modal-body table-warning">
+                     <label id="label-modal-titulo" for="modal-titulo">Titulo</label>
+                     <input id="modal-titulo" type="text" class="form-control" aria-label="Username"
+                         aria-describedby="basic-addon1">
+                     <label id="label-modal-contenido" for="modal-contenido">Contenido</label>
+                     <textarea id="modal-contenido" type="text" class="form-control" aria-label="Username"
+                         aria-describedby="basic-addon1"></textarea>
+                 </div>
+                 <div class="modal-footer">
+                     <button id="btn-guardar-nota" onclick="guardar()" type="button " data-dismiss="modal"
+                         class="btn">Guardar</button>
+                 </div>
+             </div>
+         </div>
+     </div>
+     <!-- Eliminar Nota -->
+     <div id="modal-remove" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+     aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered" role="document">
+         <div class="modal-content">
+             <div class="modal-header  bg-warning">
+                 <h5 id="h5-confirmar-salir" class="modal-title  text-white" >Por favor,
+                     confirme
+                 </h5>
+                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                     <span aria-hidden="true">&times;</span>
+                 </button>
+             </div>
+             <div class="modal-body">
+                 <p id="p-seguro-borrar">¿Seguro que deseas borrar la nota?</p>
+             </div>
+             <div class="modal-footer">
+                 <button id="btn-borrar" type="button" class="btn " data-dismiss="modal"
+                 onclick="borrar_nota()">Borrar</button>
+             </div>
+         </div>
+     </div>
+ </div>
+        <!-- Modal Salir -->
+        <div id="salirModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="h5-confirmar-salir" class="modal-title" id="exampleModalLongTitle">Por favor,
+                            confirme
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="p-seguro-salir">¿Seguro que desea abandonar la sesion?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-salir" type="button" class="btn " data-dismiss="modal"
+                            onclick="salir()">Abandonar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- Bootstrap-->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-analytics.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <!-- crypto-js  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/pbkdf2.js"></script>
+    <!-- jQuery-->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- js -->
+    <script src="js/index.js"></script>
+
+</body>
+
+</html>

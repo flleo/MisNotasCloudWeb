@@ -1,0 +1,49 @@
+body {
+  background: #E3D773;
+  color: rgba(0, 0, 0, 0.87);
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#login,
+#confirmEmail {
+  background: white;
+  max-width: 360px;
+  margin: 100px auto 16px;
+  padding: 32px 24px;
+  border-radius: 3px;
+}
+
+#login,
+#confirmEmail {
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+#load {
+  color: rgba(0, 0, 0, 0.4);
+  text-align: center;
+  font-size: 13px;
+}
+
+#lista {
+  margin: 10px auto 16px;
+  padding: 32px 24px;
+  max-width: 600px;
+}
+
+.modal-footer {
+  background-color: #E3D773;
+}
+
+.modal-footer #btn-eliminar-nota, .modal-footer #btn-salir, .modal-footer #btn-borrar {
+  border-color: red !important;
+  background-color: #f5c6cb !important;
+}
+
+.modal-footer #btn-guardar-nota {
+  border-color: green !important;
+  background-color: #dff0d8 !important;
+}
+/*# sourceMappingURL=styles.css.map */
