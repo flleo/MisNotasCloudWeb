@@ -15,56 +15,57 @@ firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 // Get a reference to the database service
 var db = firebase.database();
-var ui = new firebaseui.auth.AuthUI(firebase.auth());
+var user_id = window.localStorage.getItem('user_id');
+if(user_id != null)
+  listar();
 var actionCodeSettings = {
   // URL you want to redirect back to. The domain (www.example.com) for this
   // URL must be whitelisted in the Firebase Console.
   url: "https://misnotas-cloud.web.app",
+  // This must be true.
+  handleCodeInApp: true,
   android: {
     packageName: "utilidades.misnotas",
     installApp: true,
     minimumVersion: "null",
   },
-  // This must be true.
-  handleCodeInApp: true,
 };
 
 function nueva_nota_firebase(t, c) {
   var key = firebase.database().ref().child("notas").push().key;
   firebase
     .database()
-    .ref("notas/" + key + "/")
+    .ref("notas/" + user_id + "/" + key + "/")
     .set({
       id: key,
       titulo: encrypt(t),
       contenido: encrypt(c),
-      user_id: email,
+      user_id: user_id,
     });
 }
-var id
+
+var id;
 
 function update_nota_firebase(t, c) {
   var key = id;
   firebase
     .database()
-    .ref("notas/" + key + "/")
+    .ref("notas/" + user_id + "/" + key + "/")
     .set({
       id: key,
       titulo: encrypt(t),
       contenido: encrypt(c),
-      user_id: email,
+      user_id: user_id,
     });
 }
 
 function borrar_nota() {
-    var key = id;
-    firebase
-      .database()
-      .ref("notas/" + key + "/")
-      .remove();
+  var key = id;
+  firebase
+    .database()
+    .ref("notas/" + user_id + "/" + key + "/")
+    .remove();
 }
-
-
 
 // Cambiar idioma
 
@@ -111,37 +112,33 @@ $("#nav-language").click((e) => {
 /// Login
 
 // Enter automatizamos Enviar
-$("#input-email").keyup(e => {
-  if ( e.which === 13 ) 
-    envia_email()
+$("#input-email").keyup((e) => {
+  if (e.which === 13) envia_email();
 });
-
 
 var email = "";
 var confEmail = "";
-
-function confirmEmail() {
-  confEmail = $("#input-email").val();
-  if (email === confEmail) {
-    listar();
-  } else {
-    $("#alert").attr("class", "alert alert-danger visible");
-    $("#alert").text("El email no es correcto");
-  }
-}
 
 function envia_email() {
   email = $("#input-email").val();
   if (email !== "") {
     $("#alert").attr("class", "alert alert-warning visible");
-    $("#alert").text("Enviando email...");
+    if ($("#nav-language").val() === "English") {
+      $("#alert").text("Enviando email...");
+    } else {
+      $("#alert").text("Email sending...");
+    }
     firebase
       .auth()
       .sendSignInLinkToEmail(email, actionCodeSettings)
       .then((e) => {
         // The link was successfully sent. Inform the user.
         $("#alert").attr("class", "alert alert-success visible");
-        $("#alert").text("Compruebe su email!");
+        if ($("#nav-language").val() === "English") {
+          $("#alert").text("Compruebe su email!");
+        } else {
+          $("#alert").text("Check your email!");
+        }
         // Save the email locally so you don't need to ask the user for it again, if they open the link on the same device.
         window.localStorage.setItem("emailForSignIn", email);
         return null;
@@ -157,14 +154,53 @@ function envia_email() {
 if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
   email = window.localStorage.getItem("emailForSignIn");
   if (!email) {
-    $("#label-login").text(textString);
-    labelLogin.textContent = "Por favor, confirme su cuenta de email";
-    loginSubmit.setAttribute("onclick", "confirmEmail()");
-  } else {
-    listar();
+    if ($("#nav-language").val() === "English") {
+      $("#label-login").text("Por favor, confirme su cuenta de email");
+    } else {
+      $("#label-login").text("Please confirm your email account");
+    }
+    $("#login-submit").attr("onclick", "confirm_email()");
   }
 }
+// The client SDK will parse the code from the link for you.
+firebase
+  .auth()
+  .signInWithEmailLink(
+    window.localStorage.getItem("emailForSignIn"),
+    window.location.href
+  )
+  .then(function (result) {
+    // Clear email from storage.
+    // window.localStorage.removeItem('emailForSignIn');
+    // You can access the new user via result.user
+    user_id = result.user.uid;
+    console.log(user_id+"**");
+    if(user_id != null)
+      window.localStorage.setItem('user_id',user_id)
+    listar();
+    // Additional user info profile not available via:
+    // result.additionalUserInfo.profile == null
+    // You can check if the user is new or existing:
+    // result.additionalUserInfo.isNewUser
+  })
+  .catch(function (error) {
+    // Some error occurred, you can inspect the code: error.code
+    // Common errors could be invalid email and invalid or expired OTPs.
+  });
 
+function confirm_email() {
+  confEmail = $("#input-email").val();
+  if (email === confEmail) {
+    listar();
+  } else {
+    $("#alert").attr("class", "alert alert-danger visible");
+    if ($("#nav-language").val() === "English") {
+      $("#alert").text("El email no es correcto");
+    } else {
+      $("#alert").text("Email is wrong");
+    }
+  }
+}
 /// Lista
 
 //Encriptacion , Desencriptacion  AES  JAVASCRIPT
@@ -178,7 +214,6 @@ var key = CryptoJS.PBKDF2(passphrase, CryptoJS.enc.Hex.parse(salt), {
   keySize,
   iterations: iterationCount,
 });
-
 
 encrypt = function (plainText) {
   var encrypted = CryptoJS.AES.encrypt(plainText, key, {
@@ -197,140 +232,117 @@ decrypt = function (cipherText) {
   return decrypted.toString(CryptoJS.enc.Utf8);
 };
 
-var notas;
-
-
-
+var notas = [];
 
 function pinta() {
-  $("#lista").attr("class", "d-block ");
-  $("#nav-nueva-nota").attr("class", "btn btn-warning text-white d-block");
-  $("#nav-salir").attr("class", "btn btn-warning text-white d-block");
   $("#list-group").empty();
-  
-  notas.forEach((d) => {
 
+  notas.forEach((d) => {
     $("#list-group").append(
       "<a onclick='titulo_contenido(\"" +
         d.id +
-        "\",\"" +
+        '","' +
         d.titulo +
-        "\",\"" +
-        d.contenido.replaceAll('\n','<br>') +
+        '","' +
+        d.contenido.replace(/\n/gi, "<br>") +
         "\");' class='list-group-item list-group-item-warning list-group-item-lg-12' data-toggle='modal' data-target='#modal-edita-nota'><div id='list-titulo' class='font-weight-bold'>" +
         d.titulo +
         "</div><div id='list-contenido' class='font-weight'>" +
-        d.contenido.substring(0,55) +
+        d.contenido.substring(0, 236) +
         "</div></a>"
     );
-   
+  });
+}
+
+function listar() {
+  notas = [];
+
+  $("#login").attr("class", "d-none ");
+  $("#lista").attr("class", "d-block ");
+  $("#nav-nueva-nota").attr("class", "btn btn-warning text-white d-block");
+  $("#nav-salir").attr("class", "btn btn-warning text-white d-block");
+
+  db.ref("notas/" + user_id).on("child_added", (snapshot) => {
+    if (snapshot.val() !== null) {
+      let d = snapshot.val();
+      try {
+        if (d.titulo !== "") d.titulo = decrypt(d.titulo);
+        if (d.contenido !== "") d.contenido = decrypt(d.contenido);
+        console.log(d);
+        notas.push(d);
+        ordena();
+        pinta();
+      } catch (error) {
+        $("#alert").val(error);
+      }
+    }
+  });
+
+  db.ref("notas/" + user_id).on("child_changed", (snapshot) => {
+    if (snapshot.val() !== null) {
+      let d = snapshot.val();
+      console.log(d + "changed");
+      try {
+        if (d.titulo !== "") d.titulo = decrypt(d.titulo);
+        if (d.contenido !== "") d.contenido = decrypt(d.contenido);
+        let i = notas.indexOf(d)
+        notas.forEach((e) => {
+          if (e.id == d.id) {
+            e.titulo = d.titulo
+            e.contenido = d.contenido
+          }
+        });
+        ordena();
+        pinta();
+      } catch (error) {
+        $("#alert").val(error);
+      }
+    }
+  });
+
+  db.ref("notas/" + user_id).on("child_removed", (snapshot) => {
+    if (snapshot.val() !== null) {
+      let d = snapshot.val();
+      try {
+        notas.forEach((e) => {
+          if (e.id == d.id) {
+            notas.splice(notas.indexOf(e), 1);
+          }
+        });
+        pinta();
+      } catch (error) {
+        $("#alert").val(error);
+      }
+    }
   });
 }
 
 function ordena() {
-  notas.sort((a, b) => {
+  notas.sort(function (a, b) {
     if (a.titulo > b.titulo) {
       return 1;
     }
     if (a.titulo < b.titulo) {
       return -1;
     }
+    // a must be equal to b
     return 0;
   });
 }
 
-function listar() {
-  $("#login").attr("class", "d-none ");
-  notas = [];
-  db.ref("notas")
-    .orderByChild("user_id")
-    .equalTo(email)
-    .on("child_added", (snapshot) => {
-      if (snapshot.val() !== null) {
-        d = snapshot.val();
-        try {
-          if (d.titulo !== "") d.titulo = decrypt(d.titulo);
-          if (d.contenido !== "") d.contenido =  decrypt(d.contenido);
-          if (!notas.includes(d)) {
-            notas.push(d);
-            ordena();
-            pinta();
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    });
-
-  db.ref("notas")
-    .orderByChild("user_id")
-    .equalTo(email)
-    .on("child_changed", (snapshot) => {
-      if (snapshot.val() !== null) {
-        d = snapshot.val();
-        try {
-          if (d.titulo !== "") d.titulo = decrypt(d.titulo);
-          if (d.contenido !== "") d.contenido = decrypt(d.contenido);
-          let notass = [];
-          notass.push(d);
-          notas.forEach((e) => {
-            if (e.id !== d.id) notass.push(e);
-          });
-          if (notas.length === notass.length) {
-            notas = notass;
-            ordena();
-            pinta();
-          }
-          ordena();
-          pinta();
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    });
-
-  db.ref("notas")
-    .orderByChild("user_id")
-    .equalTo(email)
-    .on("child_removed", (snapshot) => {
-      if (snapshot.val() !== null) {
-        d = snapshot.val();
-        try {
-          if (d.titulo !== "") d.titulo = decrypt(d.titulo);
-          if (d.contenido !== "") d.contenido = decrypt(d.contenido);
-          let notass = [];
-          notas.forEach((e) => {
-            if (e.id !== d.id) notass.push(e);
-          });
-          if (notas.length - 1 === notass.length) {
-            notas = notass;
-            ordena();
-            pinta();
-          }
-          ordena();
-          pinta();
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    });
-}
-
 // Modal Editar Nota
-function titulo_contenido(i,t, c) {
-  id = i
+function titulo_contenido(i, t, c) {
+  id = i;
   $("#modal-edita-titulo").val(t);
-  $("#modal-edita-contenido").val(c.replaceAll('<br>','\n')) 
-
+  $("#modal-edita-contenido").val(c.replace(/<br>/gi, "\n"));
 }
 
 function guardar_edicion() {
   update_nota_firebase(
-    $("#modal-edita-titulo").val(),
-    $("#modal-edita-contenido").val()
+    primeraMayuscula($("#modal-edita-titulo").val()),
+    primeraMayuscula($("#modal-edita-contenido").val())
   );
 }
-
 
 function nueva_nota() {
   $("#h5-nueva-nota").attr("class", "modal-title text-white d-block");
@@ -339,15 +351,26 @@ function nueva_nota() {
 }
 
 function guardar() {
-    nueva_nota_firebase($("#modal-titulo").val(), $("#modal-contenido").val());
+  nueva_nota_firebase(
+    primeraMayuscula($("#modal-titulo").val()),
+    primeraMayuscula($("#modal-contenido").val())
+  );
 }
 
 function salir() {
   $("#lista").attr("class", "d-none");
   $("#login").attr("class", "d-block");
+  $("#nav-nueva-nota").attr("class", "d-none");
   // Clear email from storage.
   window.localStorage.removeItem("emailForSignIn");
   email = "";
+  user_id = "";
 }
 
-console.log("me cago");
+function primeraMayuscula(titulo1) {
+  let titulo2 = "";
+  try {
+    titulo2 = titulo1.charAt(0).toUpperCase() + titulo1.substring(1);
+  } catch (e) {}
+  return titulo2;
+}
