@@ -5,22 +5,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MisNotasCloud</title>
+    <link rel="icon" href="images/misnotas.png" type="image/x-icon" />
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!-- Firebase -->
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
     <!-- css-->
     <link rel="stylesheet" href="css/styles.css">
-
 </head>
-
 <body class="container">
+   
     <div id="app">
-        <div class="row">
+        <div  class="row">
             <nav class="navbar  bg-warning fixed-top px-4 d-flex">
-                <h2 class="navbar-brand text-white bg-warning  mr-auto">MisNotasCloud</h2>
+                <a href="https://misnotas-cloud.web.app" class="navbar-brand text-white mr-auto">MisNotasCloud</a>
                 <input id="nav-nueva-nota" class="btn btn-warning text-white  d-none" onclick="nueva_nota()"
                     data-toggle="modal" data-target="#modal-nueva-nota" type="submit" value="Nueva Nota" />
                 <input id="nav-language" class="btn btn-warning text-white" type="submit" value="English" />
@@ -28,7 +27,6 @@
                     data-target="#salirModal" value="Salir" />
             </nav>
         </div>
-
         <!-- Login -->
         <div id="login" class=" d-block">
             <div class="form-group ">
@@ -39,23 +37,18 @@
             </div>
             <input id="login-submit" class="btn btn-warning " type="submit" onclick="envia_email()"   value="Enviar" />
         </div>
-
         <!-- Alert -->
         <div id="alert" class="alert alert-primary d-none" role="alert">
             A simple primary alert—check it out!
         </div>
-
         <!-- Lista -->
         <div id="lista" class="d-none ">
             <!-- Nav -->
-            <div data-spy="scroll" class="scrollspy-example mt-5 ">
+            <div data-spy="scroll" class="scrollspy-example mt-5"> 
                 <!-- Lista -->
                 <div id="list-group" class="list-group ">
-
                 </div>
-
             </div>
-
         </div>
         <!--  Modal Editar Nota -->
         <div class="modal fade" id="modal-edita-nota" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -173,6 +166,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-analytics.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <!-- crypto-js  -->
