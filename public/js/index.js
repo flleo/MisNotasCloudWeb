@@ -12,12 +12,11 @@ var firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-firebase.analytics();
 // Get a reference to the database service
 var db = firebase.database();
 var user_id = window.localStorage.getItem('user_id');
-if(user_id != null)
-  listar();
+var email = window.localStorage.getItem('emailForSignIn');
+if(user_id != null && email != null)  listar();
 var actionCodeSettings = {
   // URL you want to redirect back to. The domain (www.example.com) for this
   // URL must be whitelisted in the Firebase Console.
@@ -29,6 +28,7 @@ var actionCodeSettings = {
     installApp: true,
     minimumVersion: "null",
   },
+
 };
 
 function nueva_nota_firebase(t, c) {
@@ -116,7 +116,7 @@ $("#input-email").keyup((e) => {
   if (e.which === 13) envia_email();
 });
 
-var email = "";
+
 var confEmail = "";
 
 function envia_email() {
@@ -163,30 +163,31 @@ if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
   }
 }
 // The client SDK will parse the code from the link for you.
-firebase
-  .auth()
-  .signInWithEmailLink(
-    window.localStorage.getItem("emailForSignIn"),
-    window.location.href
-  )
-  .then(function (result) {
-    // Clear email from storage.
-    // window.localStorage.removeItem('emailForSignIn');
-    // You can access the new user via result.user
-    user_id = result.user.uid;
-    console.log(user_id+"**");
-    if(user_id != null)
-      window.localStorage.setItem('user_id',user_id)
-    listar();
-    // Additional user info profile not available via:
-    // result.additionalUserInfo.profile == null
-    // You can check if the user is new or existing:
-    // result.additionalUserInfo.isNewUser
-  })
-  .catch(function (error) {
-    // Some error occurred, you can inspect the code: error.code
-    // Common errors could be invalid email and invalid or expired OTPs.
-  });
+if(email != null)
+  firebase
+    .auth()
+    .signInWithEmailLink(
+      email,
+      window.location.href
+    )
+    .then(function (result) {
+      // Clear email from storage.
+      // window.localStorage.removeItem('emailForSignIn');
+      // You can access the new user via result.user
+      user_id = result.user.uid;
+      console.log(user_id+"**");
+      if(user_id != null)
+        window.localStorage.setItem('user_id',user_id)
+      listar();
+      // Additional user info profile not available via:
+      // result.additionalUserInfo.profile == null
+      // You can check if the user is new or existing:
+      // result.additionalUserInfo.isNewUser
+    })
+    .catch(function (error) {
+      // Some error occurred, you can inspect the code: error.code
+      // Common errors could be invalid email and invalid or expired OTPs.
+    });
 
 function confirm_email() {
   confEmail = $("#input-email").val();
