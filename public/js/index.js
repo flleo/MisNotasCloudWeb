@@ -1,13 +1,13 @@
 // Your web app's Firebase configuration
 var firebaseConfig = {
-  apiKey: "AIzaSyDzLtF0ZNFaQaT9FODpIWv9YtrTQFV3AXA",
-  authDomain: "misnotas-b6c56.firebaseapp.com",
-  databaseURL: "https://misnotas-b6c56.firebaseio.com",
-  projectId: "misnotas-b6c56",
-  storageBucket: "misnotas-b6c56.appspot.com",
-  messagingSenderId: "853691070722",
-  appId: "1:853691070722:web:78e6cee92f36b2e906ea1b",
-  measurementId: "G-EB1G9RDN44",
+  apiKey: "##########################",
+  authDomain: "##############.firebaseapp.com",
+  databaseURL: "https://########.firebaseio.com",
+  projectId: "########",
+  storageBucket: "######.appspot.com",
+  messagingSenderId: "#############",
+  appId: "1:###########:web:###################",
+  measurementId: "##############",
 };
 
 // Initialize Firebase
